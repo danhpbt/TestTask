@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.mtramin.rxfingerprint.RxFingerprint;
@@ -33,6 +34,9 @@ public class LockActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.finger_guard);
+
+        //Secure don't return thumbnail recent
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
 
         tv_unlock_fingerprint = findViewById(R.id.tv_unlock_fingerprint);
         tv_unlock_passcode = findViewById(R.id.tv_unlock_passcode);
@@ -75,7 +79,7 @@ public class LockActivity extends AppCompatActivity {
 
     private void doFingerAuthentication()
     {
-        if (!RxFingerprint.isAvailable(this))
+        if (!RxFingerprint.hasEnrolledFingerprints(this))
             return;
 
         fingerprintDisposable = RxFingerprint.authenticate(this)

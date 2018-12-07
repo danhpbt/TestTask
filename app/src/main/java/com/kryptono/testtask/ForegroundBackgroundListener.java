@@ -10,10 +10,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.mtramin.rxfingerprint.RxFingerprint;
+
 import static android.content.Context.KEYGUARD_SERVICE;
 
 public class ForegroundBackgroundListener implements LifecycleObserver {
 
+    public boolean bKeyGuardOpen = false;
     Context context;
     ForegroundBackgroundListener(Context context)
     {
@@ -36,11 +39,31 @@ public class ForegroundBackgroundListener implements LifecycleObserver {
     }
 
 
-    private void lockScreen()
+    public void lockScreen()
     {
         Activity activity = (Activity) context;
-        Intent intent = new Intent(activity, LockActivity.class);
-        context.startActivity(intent);
+
+        if (RxFingerprint.hasEnrolledFingerprints(context)) {
+            Intent intent = new Intent(activity, LockActivity.class);
+            context.startActivity(intent);
+        }
+        else
+        {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                if (bKeyGuardOpen)
+                    return;
+
+                KeyguardManager km = (KeyguardManager) context.getSystemService(KEYGUARD_SERVICE);
+
+                if (km.isKeyguardSecure()) {
+                    Intent authIntent = km.createConfirmDeviceCredentialIntent(context.getString(R.string.app_name), "Unlock my app");
+                    //Intent authIntent = km.createConfirmDeviceCredentialIntent(null, null);
+                    activity.startActivityForResult(authIntent, MainActivity.INTENT_AUTHENTICATE);
+
+                    bKeyGuardOpen = true;
+                }
+            }
+        }
         
 //        Activity activity = (Activity) context;
 //        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {

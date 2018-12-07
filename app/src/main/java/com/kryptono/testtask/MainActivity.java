@@ -14,11 +14,14 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 
 import static android.os.AsyncTask.SERIAL_EXECUTOR;
 import static android.os.AsyncTask.THREAD_POOL_EXECUTOR;
 
 public class MainActivity extends AppCompatActivity {
+
+    static ForegroundBackgroundListener instance = null;
 
     final static int INTENT_AUTHENTICATE = 1001;
 
@@ -26,6 +29,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Secure don't return thumbnail recent
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -55,7 +64,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        getLifecycle().addObserver(new ForegroundBackgroundListener(this));
+        if (instance == null)
+            instance = new ForegroundBackgroundListener(this);
+
+        getLifecycle().addObserver(instance);
     }
 
     @Override
@@ -87,7 +99,14 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 //do something you want when pass the security
                 MainApplication.isForeground = true;
+
+                instance.bKeyGuardOpen = false;
             }
+            else {
+                instance.bKeyGuardOpen = false;
+                instance.lockScreen();
+            }
+
         }
     }
 
