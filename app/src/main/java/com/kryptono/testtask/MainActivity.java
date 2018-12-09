@@ -99,12 +99,12 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 //do something you want when pass the security
                 MainApplication.isForeground = true;
-
                 instance.bKeyGuardOpen = false;
             }
             else {
-                instance.bKeyGuardOpen = false;
                 instance.lockScreen();
+//                MainApplication.isForeground = false;
+//                instance.bKeyGuardOpen = false;
             }
 
         }

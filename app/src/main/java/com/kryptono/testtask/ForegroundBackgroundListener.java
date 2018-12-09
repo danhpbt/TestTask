@@ -27,6 +27,9 @@ public class ForegroundBackgroundListener implements LifecycleObserver {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     void onStart() {
+        if (bKeyGuardOpen)
+            return;
+
         Log.v("ProcessLog", "APP IS ON FOREGROUND");
         if (!MainApplication.isForeground)
             lockScreen();
@@ -34,6 +37,9 @@ public class ForegroundBackgroundListener implements LifecycleObserver {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     void onStop() {
+        if (bKeyGuardOpen)
+            return;
+
         MainApplication.isForeground = false;
         Log.v("ProcessLog", "APP IS IN BACKGROUND");
     }
@@ -50,8 +56,6 @@ public class ForegroundBackgroundListener implements LifecycleObserver {
         else
         {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                if (bKeyGuardOpen)
-                    return;
 
                 KeyguardManager km = (KeyguardManager) context.getSystemService(KEYGUARD_SERVICE);
 
